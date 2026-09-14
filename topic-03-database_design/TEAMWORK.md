@@ -7,7 +7,7 @@
 ## Таблиця внесків
 | Учасник | Роль у команді | Що зроблено | Артефакти / файли |
 |---|---|---|---|
-| Vikentii Kelevich | SQL developer | * | ... |
+| Vikentii Kelevich | SQL developer | * | topic-03-database_design/dbml |
 
 ## Контекст теми
 Full responsibility on Kelevich Vikentii
