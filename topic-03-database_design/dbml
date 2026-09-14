@@ -36,3 +36,116 @@
 
 
 // Вставте ваш DBML-код нижче 👇
+
+Table locations {
+  UniqueID bigserial [pk]
+  address string
+}
+
+Table staff {
+  UniqueID bigserial [pk]
+  role string
+  location_id bigint
+}
+
+Table basic_inventory {
+  UniqueID bigserial [pk]
+  count int
+  location_id bigint
+}
+
+Table menu_items {
+  UniqueID bigserial [pk]
+  name string
+  category string
+  price decimal
+  location_id bigint
+
+}
+
+Table orders {
+  UniqueID bigserial [pk]
+  type string
+  status string
+  location_id bigint
+}
+
+Table reservations {
+  UniqueID bigserial [pk]
+  date_time datetime
+  table_number int
+  location_id bigint
+}
+
+Table staff_orders {
+  staff_id bigint [pk] 
+  order_id bigint [pk]
+}
+
+Table menu_items_orders {
+  menu_item_id bigint [pk] 
+  order_id bigint [pk]
+}
+
+Table menu_items_ingredients {
+  menu_item_id bigint [pk] 
+  ingredient_id bigint [pk]
+}
+
+Table shift_schedules {
+  UniqueID bigserial [pk]
+  shift_details string
+  staff_id bigint
+}
+
+Table ingredients {
+  UniqueID bigserial [pk]
+  name string
+  quantity int
+  basic_inventory_id bigint
+}
+
+Table suppliers {
+  UniqueID bigserial [pk]
+  details string
+  ingredient_id bigint
+}
+
+Table ingredients_suppliers{
+  ingredient_id bigint [pk]
+  supplier_id bigint [pk]
+}
+
+Table customer_feedback {
+  UniqueID bigserial [pk]
+  rating int
+  comment string
+  customer_info string
+  order_id bigint
+  reservation_id bigint
+}
+
+Ref: locations.UniqueID < staff.location_id
+Ref: locations.UniqueID < basic_inventory.location_id
+Ref: locations.UniqueID < menu_items.location_id
+Ref: locations.UniqueID < orders.location_id
+Ref: locations.UniqueID < reservations.location_id
+
+Ref: staff.UniqueID - shift_schedules.staff_id
+Ref: staff.UniqueID < staff_orders.staff_id
+
+Ref: staff_orders.order_id > orders.UniqueID
+
+Ref: basic_inventory.UniqueID < ingredients.basic_inventory_id
+
+Ref: menu_items.UniqueID < menu_items_ingredients.menu_item_id
+Ref: menu_items_orders.menu_item_id > menu_items.UniqueID
+Ref: ingredients.UniqueID < menu_items_ingredients.ingredient_id
+
+Ref: orders.UniqueID < menu_items_orders.order_id
+Ref: orders.UniqueID - customer_feedback.order_id
+
+Ref: reservations.UniqueID - customer_feedback.reservation_id
+
+Ref: ingredients.UniqueID < ingredients_suppliers.ingredient_id
+Ref: suppliers.UniqueID < ingredients_suppliers.supplier_id
