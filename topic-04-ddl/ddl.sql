@@ -27,28 +27,27 @@
 
 -- Add your DDL below this line
 
-
 CREATE schema ua_4778_manual;
 
 CREATE TABLE ua_4778_manual.locations
 (
     "UniqueID" bigserial PRIMARY KEY,
-    "address"  VARCHAR(100) NOT NULL
+    "address"  VARCHAR(100) NOT NULL,
+    "name"     VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE ua_4778_manual.staff
 (
     "UniqueID"    bigserial PRIMARY KEY,
-    "role"        varchar(20) NOT NULL CHECK (role IN ('kitchen_staff', 'server', 'manager')),
-    "location_id" bigint      NOT NULL
+    "role"        varchar(20)  NOT NULL CHECK (role IN ('kitchen_staff', 'server', 'manager')),
+    "location_id" bigint       NOT NULL,
+    "full_name"   VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE ua_4778_manual.basic_inventory
 (
     "UniqueID"    bigserial PRIMARY KEY,
-    "count"       bigint, --TBD: clarify the purpose of the field
     "location_id" bigint NOT NULL
-
 );
 
 CREATE TABLE ua_4778_manual.menu_items
@@ -83,7 +82,10 @@ CREATE TABLE ua_4778_manual.menu_items_ingredients
 (
     "menu_item_id"  bigint,
     "ingredient_id" bigint,
-    PRIMARY KEY ("menu_item_id", "ingredient_id")
+    PRIMARY KEY ("menu_item_id", "ingredient_id"),
+    "quantity"      DECIMAL(10, 3) NOT NULL,
+    "unit"          varchar(10)    NOT NULL CHECK ( unit IN ('g', 'ml', 'pcs'))
+
 );
 
 CREATE TABLE ua_4778_manual.staff_orders
@@ -102,9 +104,11 @@ CREATE TABLE ua_4778_manual.menu_items_orders
 
 CREATE TABLE ua_4778_manual.shift_schedules
 (
-    "UniqueID"      bigserial PRIMARY KEY,
-    "shift_details" VARCHAR(300) NOT NULL,
-    "staff_id"      BIGINT       NOT NULL
+    "UniqueID"   bigserial PRIMARY KEY,
+    "staff_id"   BIGINT NOT NULL,
+    "shift_date" DATE   NOT NULL,
+    "start_time" TIME   NOT NULL,
+    "end_time"   TIME   NOT NULL
 );
 
 CREATE TABLE ua_4778_manual.ingredients
@@ -112,6 +116,7 @@ CREATE TABLE ua_4778_manual.ingredients
     "UniqueID"           bigserial PRIMARY KEY,
     "name"               VARCHAR(50) NOT NULL,
     "quantity"           BIGINT DEFAULT 0,
+    "unit"               varchar(10) NOT NULL CHECK ( unit IN ('g', 'ml', 'pcs')),
     "basic_inventory_id" BIGINT      NOT NULL
 );
 
@@ -159,8 +164,8 @@ ALTER TABLE ua_4778_manual.reservations
     ADD FOREIGN KEY ("location_id") REFERENCES ua_4778_manual.locations ("UniqueID");
 
 ALTER TABLE ua_4778_manual.shift_schedules
-    ADD CONSTRAINT shift_schedules_staff_unique UNIQUE ("staff_id"),
-    ADD CONSTRAINT shift_schedules_staff_fk FOREIGN KEY ("staff_id") REFERENCES ua_4778_manual.staff ("UniqueID");
+    ADD FOREIGN KEY ("staff_id") REFERENCES ua_4778_manual.staff ("UniqueID"),
+    ADD CONSTRAINT start_time_before_end_time CHECK (end_time > start_time);
 
 ALTER TABLE ua_4778_manual.ingredients
     ADD FOREIGN KEY ("basic_inventory_id") REFERENCES ua_4778_manual.basic_inventory ("UniqueID");
