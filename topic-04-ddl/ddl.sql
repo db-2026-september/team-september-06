@@ -296,17 +296,16 @@ CREATE TABLE ua_4778_manual_v2.shift_schedules
 
 CREATE TABLE ua_4778_manual_v2.ingredients
 (
-    ingredient_id      BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    name               VARCHAR(50)    NOT NULL,
-    quantity           DECIMAL(10, 3) NOT NULL CHECK (quantity >= 0),
-    unit               VARCHAR(10)    NOT NULL CHECK (unit IN ('g', 'ml', 'pcs')),
-    basic_inventory_id BIGINT         NOT NULL
+    ingredient_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name          VARCHAR(50) NOT NULL,
+    unit          VARCHAR(10) NOT NULL CHECK (unit IN ('g', 'ml', 'pcs'))
 );
 
 CREATE TABLE ua_4778_manual_v2.basic_inventory_ingredients
 (
     basic_inventory_id BIGINT,
     ingredient_id      BIGINT,
+    quantity           DECIMAL(10, 3) NOT NULL CHECK (quantity >= 0),
     PRIMARY KEY (basic_inventory_id, ingredient_id)
 );
 
@@ -415,7 +414,6 @@ CREATE INDEX idx_menu_basic_inventory_location_id ON ua_4778_manual_v2.basic_inv
 CREATE INDEX idx_shift_schedules_staff_id ON ua_4778_manual_v2.shift_schedules (staff_id);
 CREATE INDEX idx_customer_feedback_order_id ON ua_4778_manual_v2.customer_feedback (order_id);
 CREATE INDEX idx_customer_feedback_reservation_id ON ua_4778_manual_v2.customer_feedback (reservation_id);
-CREATE INDEX idx_ingredients_basic_inventory_id ON ua_4778_manual_v2.ingredients (basic_inventory_id);
 
 CREATE INDEX idx_staff_orders_order_id ON ua_4778_manual_v2.staff_orders (order_id);
 CREATE INDEX idx_menu_items_orders_order_id ON ua_4778_manual_v2.menu_items_orders (order_id);
