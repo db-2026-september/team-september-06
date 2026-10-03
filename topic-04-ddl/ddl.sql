@@ -38,6 +38,14 @@ CREATE TABLE ua_4778_manual_v2.locations
     name        VARCHAR(100) NOT NULL
 );
 
+CREATE TABLE ua_4778_manual_v2.units_of_measure
+(
+    symbol VARCHAR(10) PRIMARY KEY,
+    name   VARCHAR(20) NOT NULL,
+
+    CONSTRAINT uq_units_name UNIQUE (name)
+);
+
 CREATE TABLE ua_4778_manual_v2.staff
 (
     staff_id    BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -126,7 +134,7 @@ CREATE TABLE ua_4778_manual_v2.ingredients
 (
     ingredient_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name          VARCHAR(50) NOT NULL,
-    unit          VARCHAR(10) NOT NULL CHECK (unit IN ('g', 'ml', 'pcs'))
+    unit          VARCHAR(10) NOT NULL
 );
 
 CREATE TABLE ua_4778_manual_v2.basic_inventory_ingredients
@@ -185,6 +193,8 @@ ALTER TABLE ua_4778_manual_v2.staff
 ALTER TABLE ua_4778_manual_v2.basic_inventory
     ADD CONSTRAINT basic_inventory_location_id_fk FOREIGN KEY (location_id) REFERENCES ua_4778_manual_v2.locations (location_id) ON DELETE CASCADE,
 
+    ADD CONSTRAINT basic_inventory_unit_fk FOREIGN KEY (unit) REFERENCES ua_4778_manual_v2.units_of_measure (symbol) ON DELETE CASCADE,
+
     ADD CONSTRAINT chk_inventory_type
         CHECK (inventory_type IN (
                                   'dry_ingredients',
@@ -198,9 +208,6 @@ ALTER TABLE ua_4778_manual_v2.basic_inventory
                                   'packaging'
             )),
 
-    ADD CONSTRAINT chk_inventory_unit
-        CHECK (unit IN ('kg', 'l', 'unit')),
-
     ADD CONSTRAINT chk_inventory_quantity
         CHECK (current_quantity >= 0),
 
@@ -213,10 +220,15 @@ ALTER TABLE ua_4778_manual_v2.basic_inventory
     ADD CONSTRAINT uq_inventory_location_type
         UNIQUE (location_id, inventory_type);
 
+ALTER TABLE ua_4778_manual_v2.ingredients
+    ADD CONSTRAINT ingredients_unit_fk FOREIGN KEY (unit) REFERENCES ua_4778_manual_v2.units_of_measure (symbol) ON DELETE CASCADE;
 
 ALTER TABLE ua_4778_manual_v2.locations_menu_items
-    ADD CONSTRAINT locations_menu_items_location_id_fk FOREIGN KEY (location_id) REFERENCES ua_4778_manual_v2.locations (location_id) ON DELETE CASCADE,
-    ADD CONSTRAINT locations_menu_items_menu_item_id_fk FOREIGN KEY (menu_item_id) REFERENCES ua_4778_manual_v2.menu_items (menu_item_id) ON DELETE CASCADE;
+    ADD CONSTRAINT locations_menu_items_location_id_fk FOREIGN KEY (location_id) REFERENCES ua_4778_manual_v2.locations (location_id) ON
+        DELETE CASCADE,
+    ADD CONSTRAINT locations_menu_items_menu_item_id_fk FOREIGN KEY (menu_item_id) REFERENCES ua_4778_manual_v2.menu_items (menu_item_id)
+        ON
+            DELETE CASCADE;
 
 ALTER TABLE ua_4778_manual_v2.orders
     ADD CONSTRAINT orders_location_id_fk FOREIGN KEY (location_id) REFERENCES ua_4778_manual_v2.locations (location_id) ON DELETE CASCADE;
