@@ -239,9 +239,14 @@ CREATE TABLE ua_4778_manual_v2.menu_items
     name                     VARCHAR(100)   NOT NULL,
     category                 VARCHAR(20)    NOT NULL CHECK (category IN ('appetizer', 'main_course', 'dessert')),
     price_usd                DECIMAL(10, 2) NOT NULL CHECK (price_usd > 0),
-    preparation_time_minutes INTEGER DEFAULT 0 CHECK (preparation_time_minutes >= 0),
-    location_id              BIGINT         NOT NULL
+    preparation_time_minutes INTEGER DEFAULT 0 CHECK (preparation_time_minutes >= 0)
+);
 
+CREATE TABLE ua_4778_manual_v2.locations_menu_items
+(
+    location_id  BIGINT NOT NULL,
+    menu_item_id BIGINT NOT NULL,
+    PRIMARY KEY (location_id, menu_item_id)
 );
 
 CREATE TABLE ua_4778_manual_v2.orders
@@ -357,8 +362,9 @@ ALTER TABLE ua_4778_manual_v2.staff
 ALTER TABLE ua_4778_manual_v2.basic_inventory
     ADD CONSTRAINT basic_inventory_location_id_fk FOREIGN KEY (location_id) REFERENCES ua_4778_manual_v2.locations (location_id) ON DELETE CASCADE;
 
-ALTER TABLE ua_4778_manual_v2.menu_items
-    ADD CONSTRAINT menu_items_location_id_fk FOREIGN KEY (location_id) REFERENCES ua_4778_manual_v2.locations (location_id) ON DELETE CASCADE;
+ALTER TABLE ua_4778_manual_v2.locations_menu_items
+    ADD CONSTRAINT locations_menu_items_location_id_fk FOREIGN KEY (location_id) REFERENCES ua_4778_manual_v2.locations (location_id) ON DELETE CASCADE,
+    ADD CONSTRAINT locations_menu_items_menu_item_id_fk FOREIGN KEY (menu_item_id) REFERENCES ua_4778_manual_v2.menu_items (menu_item_id) ON DELETE CASCADE;
 
 ALTER TABLE ua_4778_manual_v2.orders
     ADD CONSTRAINT orders_location_id_fk FOREIGN KEY (location_id) REFERENCES ua_4778_manual_v2.locations (location_id) ON DELETE CASCADE;
@@ -408,7 +414,7 @@ ALTER TABLE ua_4778_manual_v2.basic_inventory_ingredients
 CREATE INDEX idx_staff_location_id ON ua_4778_manual_v2.staff (location_id);
 CREATE INDEX idx_orders_location_id ON ua_4778_manual_v2.orders (location_id);
 CREATE INDEX idx_reservations_location_id ON ua_4778_manual_v2.reservations (location_id);
-CREATE INDEX idx_menu_items_location_id ON ua_4778_manual_v2.menu_items (location_id);
+CREATE INDEX idx_locations_menu_items_menu_item_id ON ua_4778_manual_v2.locations_menu_items (menu_item_id);
 CREATE INDEX idx_menu_basic_inventory_location_id ON ua_4778_manual_v2.basic_inventory (location_id);
 
 CREATE INDEX idx_shift_schedules_staff_id ON ua_4778_manual_v2.shift_schedules (staff_id);
