@@ -49,9 +49,11 @@ CREATE TABLE ua_4778_manual_v2.staff
 CREATE TABLE ua_4778_manual_v2.basic_inventory
 (
     basic_inventory_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    location_id        BIGINT NOT NULL UNIQUE,
-    capacity_kg        BIGINT NOT NULL,
-    description        VARCHAR(400)
+    location_id        BIGINT         NOT NULL UNIQUE,
+    inventory_type     VARCHAR(30)    NOT NULL,
+    unit               VARCHAR(10)    NOT NULL,
+    current_quantity   DECIMAL(10, 3) NOT NULL DEFAULT 0,
+    max_capacity       DECIMAL(10, 3) NOT NULL
 );
 
 CREATE TABLE ua_4778_manual_v2.menu_items
@@ -181,7 +183,36 @@ ALTER TABLE ua_4778_manual_v2.staff
     ADD CONSTRAINT staff_location_id_fk FOREIGN KEY (location_id) REFERENCES ua_4778_manual_v2.locations (location_id) ON DELETE CASCADE;
 
 ALTER TABLE ua_4778_manual_v2.basic_inventory
-    ADD CONSTRAINT basic_inventory_location_id_fk FOREIGN KEY (location_id) REFERENCES ua_4778_manual_v2.locations (location_id) ON DELETE CASCADE;
+    ADD CONSTRAINT basic_inventory_location_id_fk FOREIGN KEY (location_id) REFERENCES ua_4778_manual_v2.locations (location_id) ON DELETE CASCADE,
+
+    ADD CONSTRAINT chk_inventory_type
+        CHECK (inventory_type IN (
+                                  'dry_ingredients',
+                                  'meat_poultry',
+                                  'fish_seafood',
+                                  'vegetables',
+                                  'dairy',
+                                  'frozen_products',
+                                  'beverages',
+                                  'sauces_condiments',
+                                  'packaging'
+            )),
+
+    ADD CONSTRAINT chk_inventory_unit
+        CHECK (unit IN ('kg', 'l', 'unit')),
+
+    ADD CONSTRAINT chk_inventory_quantity
+        CHECK (current_quantity >= 0),
+
+    ADD CONSTRAINT chk_inventory_capacity
+        CHECK (max_capacity > 0),
+
+    ADD CONSTRAINT chk_inventory_current_capacity
+        CHECK (current_quantity <= max_capacity),
+
+    ADD CONSTRAINT uq_inventory_location_type
+        UNIQUE (location_id, inventory_type);
+
 
 ALTER TABLE ua_4778_manual_v2.locations_menu_items
     ADD CONSTRAINT locations_menu_items_location_id_fk FOREIGN KEY (location_id) REFERENCES ua_4778_manual_v2.locations (location_id) ON DELETE CASCADE,
@@ -249,7 +280,5 @@ CREATE INDEX idx_ingredients_suppliers_supplier_id ON ua_4778_manual_v2.ingredie
 CREATE INDEX idx_basic_inventory_ingredients_ingredient_id ON ua_4778_manual_v2.basic_inventory_ingredients (ingredient_id);
 
 CREATE INDEX idx_reservations_loc_time ON ua_4778_manual_v2.reservations (location_id, date_time);
-
-CREATE INDEX idx_supplier_contacts_supplier_id ON ua_4778_manual_v2.supplier_contacts (supplier_id);
 
 CREATE INDEX idx_supplier_contacts_supplier_id ON ua_4778_manual_v2.supplier_contacts (supplier_id);
